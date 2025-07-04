@@ -1,4 +1,5 @@
 name: Java Maven CI
+# Triggering first build
 
 on:
   push:

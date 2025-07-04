@@ -46,15 +46,22 @@ public class BaseTest {
         // Browser setup
         switch (browser.toLowerCase()) {
             case "chrome":
-                ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-                chromeOptions.setExperimentalOption("useAutomationExtension", false);
-                chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-                chromeOptions.addArguments("--start-maximized");
-                
-                chromeOptions.addArguments("--disable-notifications");
-                chromeOptions.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36");
-                driver = new ChromeDriver(chromeOptions);
+            	ChromeOptions options = new ChromeOptions();
+
+            	// These are safe and common
+            	options.addArguments("--disable-blink-features=AutomationControlled");
+            	options.addArguments("--disable-notifications");
+            	options.addArguments("--start-maximized");
+
+            	// REMOVE any --user-data-dir argument
+            	// Do NOT set "user-agent" unless you really need it
+
+            	// Enable headless for CI
+            	if (System.getenv("CI") != null) {
+            	    options.addArguments("--headless=new");
+            	    options.addArguments("--disable-gpu");
+            	}
+
                 break;
 
             case "firefox":

@@ -13,7 +13,7 @@ public class EcommerceTest extends BaseTest {
 
 	@DataProvider(name = "excelData")
 	public Object[][] getExcelData() {
-	    return utilities.ExcelUtil.getTestData("C:\\Users\\SRINU\\Downloads/TestData.xlsx", "Sheet1");
+	    return utilities.ExcelUtil.getTestData("src/test/resources/TestData.xlsx", "Sheet1");
 	}
 
 //    @DataProvider(name = "productData")

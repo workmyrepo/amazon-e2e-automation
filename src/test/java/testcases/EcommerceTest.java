@@ -11,55 +11,45 @@ import pages.*;
 
 public class EcommerceTest extends BaseTest {
 
-	@DataProvider(name = "excelData")
-	public Object[][] getExcelData() {
-	    return utilities.ExcelUtil.getTestData("src/test/resources/TestData.xlsx", "Sheet1");
-	}
 
-//    @DataProvider(name = "productData")
-//    public Object[][] getProductData() {
-//        return new Object[][] {
-//            {"iphone 16 128gb"},
-//            {"Samsung Galaxy S24"},
-//            {"OnePlus 12 Pro"}
-//        };
-//    }
-
-	@Test(dataProvider = "excelData")
-	public void endToEndAmazonFlow(String productName) throws InterruptedException {
+   
+	@Test
+	public void endToEndAmazonFlow_SingleProduct() throws InterruptedException {
 	    LoginPage login = new LoginPage(driver);
 	    HomePage home = new HomePage(driver);
 	    ProductPage product = new ProductPage(driver);
 	    CartPage cart = new CartPage(driver);
 
+	    String productName = "iphone 16 128gb";
+
 	    test.info("Logging into Amazon");
 	    login.loginToAmazon(config.get("username"), config.get("password"));
 	    test.pass("Successfully logged into Amazon");
 
-	    // Add a wait after login
-	    Thread.sleep(2000 + new java.util.Random().nextInt(3000));
+	    Thread.sleep(3000);
 
 	    test.info("Searching for product: " + productName);
 	    home.searchProduct(productName);
 	    test.pass("Search completed");
 
-	    Thread.sleep(2000 + new java.util.Random().nextInt(3000));
+	    Thread.sleep(3000);
 
 	    test.info("Clicking the first available product");
-	    product.clickFirstAvailableProduct();
+	    product.clickFirstAvailableProduct(productName);
 	    test.pass("Clicked first available product");
 
 	    ArrayList<String> tabs = new ArrayList<>(driver.getWindowHandles());
 	    driver.switchTo().window(tabs.get(tabs.size() - 1));
-	    test.info("Switched to new tab");
+	    test.info("Switched to product tab");
 
-	    Thread.sleep(2000 + new java.util.Random().nextInt(3000));
+	    Thread.sleep(3000);
 
 	    test.info("Adding product to cart");
 	    cart.addToCart();
 	    test.pass("Product added to cart");
 
-	    Thread.sleep(2000 + new java.util.Random().nextInt(3000));
+	    Thread.sleep(3000);
 	}
+
 
 }

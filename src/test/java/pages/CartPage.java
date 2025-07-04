@@ -10,7 +10,7 @@ public class CartPage {
     WebDriver driver;
 
     // Target the <span> wrapping the button instead of the input
-    private By addToCartSpan = By.xpath("//span[@id='submit.add-to-cart']");
+    private By addToCartSpan = By.xpath("(//input[@id='add-to-cart-button'])[2]");
 
     public CartPage(WebDriver driver) {
         System.out.println("this is Cart constructor");
@@ -30,8 +30,7 @@ public class CartPage {
         System.out.println("Enabled: " + addToCart.isEnabled());
 
         // Use JavaScript click
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", addToCart);
-
+        addToCart.click();
         System.out.println("this is after add to cart");
     }
 }

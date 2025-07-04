@@ -6,8 +6,8 @@
       <class name="testcases.EcommerceTest">
         <methods>
           <include name="setUp"/>
+          <include name="endToEndAmazonFlow_SingleProduct"/>
           <include name="tearDown"/>
-          <include name="endToEndAmazonFlow"/>
         </methods>
       </class> <!-- testcases.EcommerceTest -->
     </classes>

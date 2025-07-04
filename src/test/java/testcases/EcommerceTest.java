@@ -1,12 +1,11 @@
 package testcases;
 
-import base.BaseTest;
-
 import java.util.ArrayList;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import base.BaseTest;
 import pages.*;
 
 public class EcommerceTest extends BaseTest {

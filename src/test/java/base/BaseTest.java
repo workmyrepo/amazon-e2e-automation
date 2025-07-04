@@ -45,16 +45,22 @@ public class BaseTest {
 
         // Browser setup
         switch (browser.toLowerCase()) {
-            case "chrome":
-                ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-                chromeOptions.setExperimentalOption("useAutomationExtension", false);
-                chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-                chromeOptions.addArguments("--start-maximized");
-                chromeOptions.addArguments("--disable-notifications");
-                chromeOptions.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36");
-                driver = new ChromeDriver(chromeOptions);
-                break;
+        case "chrome":
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+            chromeOptions.setExperimentalOption("useAutomationExtension", false);
+            chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
+            chromeOptions.addArguments("--start-maximized");
+            chromeOptions.addArguments("--disable-notifications");
+            chromeOptions.addArguments("--headless=new"); // ✅ Headless for GitHub Actions
+            chromeOptions.addArguments("--no-sandbox"); // ✅ Required for Linux CI
+            chromeOptions.addArguments("--disable-dev-shm-usage"); // ✅ Avoid shared memory issues
+            chromeOptions.addArguments("--user-data-dir=/tmp/chrome-" + java.util.UUID.randomUUID()); // ✅ Unique user dir
+            chromeOptions.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36");
+
+            driver = new ChromeDriver(chromeOptions);
+            break;
+
 
             case "firefox":
                 driver = new FirefoxDriver();

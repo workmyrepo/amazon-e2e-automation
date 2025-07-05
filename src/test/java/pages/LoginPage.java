@@ -36,7 +36,7 @@ public class LoginPage {
         WebElement emailField = WaitUtil.waitForElementVisible(driver, emailInput, 20);
         emailField.sendKeys(username);
         test.log(Status.INFO, "<b>Secured Username Entry : </b>");
-      //  test.log(Status.INFO, "Entered username.");
+      //  test.log(Status.INFO, "Entered username.");//
         ReportHelper.logStepWithScreenshot(driver, test);
 
         WebElement continueButton = WaitUtil.waitForElementClickable(driver, continueBtn, 20);

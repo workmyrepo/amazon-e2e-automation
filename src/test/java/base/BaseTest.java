@@ -94,6 +94,7 @@ public class BaseTest {
         }
 
         driver.get(config.get("baseUrl"));
+        System.out.println("Page title after load: " + driver.getTitle());
         if (driver.getPageSource().toLowerCase().contains("enter the characters you see below")) {
             throw new RuntimeException("Captcha detected. Cannot proceed.");
         }

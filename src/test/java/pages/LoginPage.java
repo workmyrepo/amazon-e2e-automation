@@ -18,7 +18,9 @@ public class LoginPage {
     WebDriver driver;
     ExtentTest test;
 
-    private By homeSignInBtn = By.id("nav-link-accountList-nav-line-1");
+ // this one exists both in headed & headless modes
+    private By homeSignInBtn = By.id("nav-link-accountList");
+
     private By emailInput = By.id("ap_email_login");
     private By continueBtn = By.id("continue");
     private By passwordInput = By.id("ap_password");
@@ -41,7 +43,7 @@ public class LoginPage {
     	} catch (Exception ignored) { /* no cookie banner shown */ }
 
     	
-        WebElement HomeSignInButton = WaitUtil.waitForElementClickable(driver, homeSignInBtn, 20);
+    	WebElement HomeSignInButton = WaitUtil.waitForElementPresent(driver, homeSignInBtn, 20);
         test.log(Status.INFO, "<b>Clicked Sign In on Home Page </b>");
         HomeSignInButton.click();
         ReportHelper.logStepWithScreenshot(driver, test);

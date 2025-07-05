@@ -19,6 +19,7 @@ public class WaitUtil {
         return new WebDriverWait(driver, Duration.ofSeconds(timeout))
                 .until(ExpectedConditions.elementToBeClickable(locator));
     }
+    
 
     /** new: waits until the element is present in the DOM (but not necessarily visible) */
     public static WebElement waitForElementPresent(WebDriver driver, By locator, int timeout) {

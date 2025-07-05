@@ -31,9 +31,9 @@ import utilities.WaitUtil;
 public class BaseTest {
     public WebDriver driver;
     public ConfigDataProvider config;
-    public ExtentReports extent; 
+    public ExtentReports extent;
     public ExtentTest test;
-    public String browserName; 
+    public String browserName;
 
     @Parameters({"browser"})
     @BeforeMethod
@@ -49,14 +49,29 @@ public class BaseTest {
                      .assignDevice(browserName)
                      .assignCategory("Amazon E2E Tests");
 
+        // Detect if running in CI
+        boolean isCI = Boolean.parseBoolean(System.getenv("CI"));
+        System.out.println("CI Mode: " + isCI);
+
         switch (browser.toLowerCase()) {
             case "chrome":
                 ChromeOptions chromeOptions = new ChromeOptions();
                 chromeOptions.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
                 chromeOptions.setExperimentalOption("useAutomationExtension", false);
                 chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-                chromeOptions.addArguments("--start-maximized");
                 chromeOptions.addArguments("--disable-notifications");
+
+                if (isCI) {
+                    chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+                    chromeOptions.addArguments("--disable-gpu");
+                    chromeOptions.addArguments("--window-size=1920,1080");
+                    chromeOptions.addArguments("--user-data-dir=/tmp/chrome-profile-" + System.currentTimeMillis());
+                } else {
+                    chromeOptions.addArguments("--start-maximized");
+                }
+
                 WebDriver rawDriver = new ChromeDriver(chromeOptions);
                 ReportingWebDriverListener listener = new ReportingWebDriverListener(rawDriver, test);
                 driver = new org.openqa.selenium.support.events.EventFiringDecorator<>(listener).decorate(rawDriver);
@@ -79,13 +94,9 @@ public class BaseTest {
         }
 
         driver.get(config.get("baseUrl"));
-       
         test.log(Status.INFO, "<b>Launched </b>" + browser + "<b> and navigated to </b>" + config.get("baseUrl"));
-  
         ReportHelper.logStepWithScreenshot(driver, test);
-        
         test.log(Status.INFO, "<b>Test started at: </b>" + java.time.LocalDateTime.now());
-       
     }
 
     @AfterMethod
@@ -109,12 +120,17 @@ public class BaseTest {
             }
             extent.flush();
 
-            // Optionally auto-open the report
-            try {
-                File htmlFile = new File("test-output/ExtentReport_" + browserName + ".html");
-                Desktop.getDesktop().browse(htmlFile.toURI());
-            } catch (Exception e) {
-                e.printStackTrace();
+            // Skip auto-open in CI
+            boolean isCI = Boolean.parseBoolean(System.getenv("CI"));
+            if (!isCI) {
+                try {
+                    File htmlFile = new File("test-output/ExtentReport_" + browserName + ".html");
+                    Desktop.getDesktop().browse(htmlFile.toURI());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Skipping report auto-open in CI.");
             }
         }
     }

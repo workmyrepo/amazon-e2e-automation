@@ -61,16 +61,16 @@ public class BaseTest {
                 chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
                 chromeOptions.addArguments("--disable-notifications");
 
-                if (isCI) {
-                    chromeOptions.addArguments("--headless=new");
-                    chromeOptions.addArguments("--no-sandbox");
-                    chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--disable-gpu");
-                    chromeOptions.addArguments("--window-size=1920,1080");
-                    chromeOptions.addArguments("--user-data-dir=/tmp/chrome-profile-" + System.currentTimeMillis());
-                } else {
-                    chromeOptions.addArguments("--start-maximized");
-                }
+             
+             // if we're in CI, run headless with a desktop resolution:
+             if (System.getenv("CI") != null) {
+               chromeOptions.addArguments(
+                 "--headless=new",
+                 "--disable-gpu",
+                 "--window-size=1920,1080"
+               );
+             }
+
 
                 WebDriver rawDriver = new ChromeDriver(chromeOptions);
                 ReportingWebDriverListener listener = new ReportingWebDriverListener(rawDriver, test);

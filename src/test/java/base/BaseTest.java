@@ -1,8 +1,11 @@
 package base;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.lang.reflect.Method;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -20,30 +23,32 @@ import com.aventstack.extentreports.Status;
 
 import utilities.ConfigDataProvider;
 import utilities.ExtentManager;
+import utilities.ReportHelper;
+import utilities.ReportingWebDriverListener;
 import utilities.ScreenshotUtil;
+import utilities.WaitUtil;
 
 public class BaseTest {
     public WebDriver driver;
     public ConfigDataProvider config;
-    public ExtentReports extent; // no longer static!
+    public ExtentReports extent; 
     public ExtentTest test;
-    public String browserName; // keep track of which browser
+    public String browserName; 
 
     @Parameters({"browser"})
     @BeforeMethod
     public void setUp(Method method, @Optional("chrome") String browser) {
         this.browserName = browser;
-
-        // Initialize Config
         config = new ConfigDataProvider();
-
-        // Create a new ExtentReports instance for this browser
         extent = ExtentManager.createInstance(browserName);
 
-        // Start the test logger
-        test = extent.createTest(method.getName());
+        String testName = method.getName().replace("_", " ");
 
-        // Browser setup
+        test = extent.createTest(testName)
+                     .assignAuthor("Automation Tester")
+                     .assignDevice(browserName)
+                     .assignCategory("Amazon E2E Tests");
+
         switch (browser.toLowerCase()) {
             case "chrome":
                 ChromeOptions chromeOptions = new ChromeOptions();
@@ -52,51 +57,65 @@ public class BaseTest {
                 chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
                 chromeOptions.addArguments("--start-maximized");
                 chromeOptions.addArguments("--disable-notifications");
-                chromeOptions.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36");
-                driver = new ChromeDriver(chromeOptions);
+                WebDriver rawDriver = new ChromeDriver(chromeOptions);
+                ReportingWebDriverListener listener = new ReportingWebDriverListener(rawDriver, test);
+                driver = new org.openqa.selenium.support.events.EventFiringDecorator<>(listener).decorate(rawDriver);
                 break;
 
             case "firefox":
-                driver = new FirefoxDriver();
+                WebDriver rawFirefoxDriver = new FirefoxDriver();
+                ReportingWebDriverListener firefoxListener = new ReportingWebDriverListener(rawFirefoxDriver, test);
+                driver = new org.openqa.selenium.support.events.EventFiringDecorator<>(firefoxListener).decorate(rawFirefoxDriver);
                 break;
 
             case "edge":
-                driver = new EdgeDriver();
+                WebDriver rawEdgeDriver = new EdgeDriver();
+                ReportingWebDriverListener edgeListener = new ReportingWebDriverListener(rawEdgeDriver, test);
+                driver = new org.openqa.selenium.support.events.EventFiringDecorator<>(edgeListener).decorate(rawEdgeDriver);
                 break;
 
             default:
                 throw new RuntimeException("Unsupported browser: " + browser);
         }
 
-        // Open base URL
-        System.out.println("DEBUG config.get(\"baseUrl\") = " + config.get("baseUrl"));
-
         driver.get(config.get("baseUrl"));
-        test.log(Status.INFO, "Launched " + browser + " and navigated to " + config.get("baseUrl"));
+       
+        test.log(Status.INFO, "<b>Launched </b>" + browser + "<b> and navigated to </b>" + config.get("baseUrl"));
+  
+        ReportHelper.logStepWithScreenshot(driver, test);
+        
+        test.log(Status.INFO, "<b>Test started at: </b>" + java.time.LocalDateTime.now());
+       
     }
 
     @AfterMethod
     public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
-            test.fail("Test failed: " + result.getThrowable());
-            try {
+        try {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
+                test.fail("Test failed: " + result.getThrowable());
                 test.addScreenCaptureFromPath("../" + screenshotPath);
+            } else if (result.getStatus() == ITestResult.SKIP) {
+                test.log(Status.SKIP, "Test skipped: " + result.getThrowable());
+            } else {
+                test.log(Status.PASS, "<b>Test passed successfully.</b>");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (driver != null) {
+                driver.quit();
+                test.log(Status.INFO, "<b>Browser Closed!!</b>");
+            }
+            extent.flush();
+
+            // Optionally auto-open the report
+            try {
+                File htmlFile = new File("test-output/ExtentReport_" + browserName + ".html");
+                Desktop.getDesktop().browse(htmlFile.toURI());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (result.getStatus() == ITestResult.SKIP) {
-            test.log(Status.SKIP, "Test skipped: " + result.getThrowable());
-        } else {
-            test.log(Status.PASS, "Test passed");
         }
-
-        if (driver != null) {
-            driver.quit();
-            test.log(Status.INFO, "Browser closed");
-        }
-
-        // Write this browser's report to disk
-        extent.flush();
     }
 }

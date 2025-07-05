@@ -31,7 +31,7 @@ public class EcommerceTest extends BaseTest {
 //	    test.pass("Successfully logged into Amazon");
 	    ReportHelper.logStepPass(test, "SignIn Successfull! ✔️ ");
 
-	    Thread.sleep(3000);
+	    Thread.sleep(3000);// 
 	    ReportHelper.logStepWithScreenshot(driver, test);
 	    
 	    ReportHelper.logStepInfo(test, "Searching for product: " + productName);

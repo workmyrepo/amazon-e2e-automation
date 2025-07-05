@@ -24,13 +24,24 @@ public class HomePage {
     }
 
     public void searchProduct(String productName) {
-        // **1) early screenshot so you see exactly what page looks like before any waiting**
-        ReportHelper.logStepWithScreenshot(driver, test);
+    	
+    	
+    	    // try by id, otherwise by name
+    	    By idLocator   = By.id("twotabsearchtextbox");
+    	    By nameLocator = By.name("field‑keywords");
 
-        // **2) wait for the SEARCH BOX to be present in the DOM** (helps on slower CI loads)
-        WaitUtil.waitForElementPresent(driver, searchBox, 20);
-        WebElement searchInput = WaitUtil.waitForElementVisible(driver, searchBox, 20);
-        test.log(Status.INFO, "<b>Search box located</b>");
+    	    WebElement searchInput;
+    	    try {
+    	        searchInput = WaitUtil.waitForElementVisible(driver, idLocator, 20);
+    	    } catch (Exception e) {
+    	        test.log(Status.INFO, "ID locator failed, falling back to name=field‑keywords");
+    	        searchInput = WaitUtil.waitForElementVisible(driver, nameLocator, 20);
+    	    }
+
+    	    test.log(Status.INFO, "<b>Search box located</b>");
+    	    // … the rest stays the same
+    	
+
         
         // existing steps...
         searchInput.click();

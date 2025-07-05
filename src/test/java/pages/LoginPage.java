@@ -1,8 +1,13 @@
 package pages;
 
+import java.time.Duration;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.ExtentTest;
 
@@ -25,6 +30,17 @@ public class LoginPage {
     }
 
     public void loginToAmazon(String username, String password) {
+    	
+    	// in LoginPage.loginToAmazon(), before waitForElementClickable(...)
+    	try {
+    	    By cookieAccept = By.id("sp-cc-accept");             // Amazon's “Accept Cookies” button
+    	    WebElement acceptBtn = new WebDriverWait(driver, Duration.ofSeconds(5))
+    	        .until(ExpectedConditions.elementToBeClickable(cookieAccept));
+    	    acceptBtn.click();
+    	    test.log(Status.INFO, "Closed cookie banner");
+    	} catch (Exception ignored) { /* no cookie banner shown */ }
+
+    	
         WebElement HomeSignInButton = WaitUtil.waitForElementClickable(driver, homeSignInBtn, 20);
         test.log(Status.INFO, "<b>Clicked Sign In on Home Page </b>");
         HomeSignInButton.click();

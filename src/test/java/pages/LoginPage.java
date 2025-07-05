@@ -65,9 +65,17 @@ public class LoginPage {
         test.log(Status.INFO, "<b>Secured Password Entry : </b>");
         //test.log(Status.INFO, "Entered password. (masked)");
         ReportHelper.logStepWithScreenshot(driver, test);
-
-        WebElement signInButton = WaitUtil.waitForElementClickable(driver, signInBtn, 20);
-        signInButton.click();
+        
+        By primary = By.id("nav-link-accountList-nav-line-1");
+        By fallback = By.id("nav-link-accountList");
+        WebElement signInBtn;
+        try {
+            signInBtn = WaitUtil.waitForElementClickable(driver, primary, 20);
+        } catch (Exception e) {
+            test.log(Status.INFO, "Primary sign‑in ID failed, falling back to nav-link-accountList");
+            signInBtn = WaitUtil.waitForElementClickable(driver, fallback, 20);
+        }
+        signInBtn.click();
        // test.log(Status.INFO, "Clicked Sign In button");
         ReportHelper.logStepWithScreenshot(driver, test);
     }
